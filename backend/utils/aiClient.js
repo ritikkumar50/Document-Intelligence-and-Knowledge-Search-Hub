@@ -1,4 +1,3 @@
-const puter = require('@heyputer/puter.js').default;
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -11,6 +10,7 @@ const generateAnswer = async (question, context) => {
     }
 
     try {
+        const { default: puter } = await import('@heyputer/puter.js');
         puter.authToken = puterKey;
         const prompt = `
       Role: You are a helpful AI assistant.
