@@ -27,9 +27,15 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI)
+const mongo = mongoose.connect(process.env.MONGO_URI, {
+  
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
   .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.log(err));
+  .catch(err => console.log('MongoDB connection error:', err));
+   
+
 
 // Start server only if not running in a serverless environment (optional check)
 // Vercel handles the listening part via export
