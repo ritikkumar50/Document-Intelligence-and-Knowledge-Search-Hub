@@ -9,6 +9,7 @@ const generateToken = (id) => {
 
 const checkDbConnection = (res) => {
     if (mongoose.connection.readyState !== 1) {
+        console.error('Database connection check failed. ReadyState:', mongoose.connection.readyState);
         res.status(503).json({ message: 'Database connection unavailable. Please try again later.' });
         return false;
     }
@@ -17,9 +18,9 @@ const checkDbConnection = (res) => {
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
-    
+
     if (!checkDbConnection(res)) return;
-    
+
     try {
         const userExists = await User.findOne({ email });
         if (userExists) return res.status(400).json({ message: 'User already exists' });
@@ -43,9 +44,9 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
-    
+
     if (!checkDbConnection(res)) return;
-    
+
     try {
         const user = await User.findOne({ email });
         if (user && (await user.matchPassword(password))) {

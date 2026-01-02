@@ -1,4 +1,0 @@
-{
-  "message": "Failed to extract text",
-  "stack": "Error: Failed to extract text\n    at extractText (E:\\TASK-2\\backend\\utils\\textExtractor.js:14:15)\n    at uploadDocument (E:\\TASK-2\\backend\\controllers\\documentController.js:19:28)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)"
-}

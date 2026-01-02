@@ -54,9 +54,9 @@ const DocumentList = () => {
 
     return (
         <div className="card" style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h2 style={{ margin: 0 }}>Documents</h2>
-                <label className="btn btn-primary" style={{ display: 'inline-block', cursor: uploading ? 'wait' : 'pointer' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
+                <h2 style={{ margin: 0, fontSize: '1.25rem' }}>Documents</h2>
+                <label className="btn btn-primary" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', cursor: uploading ? 'wait' : 'pointer', padding: '0.5rem 1rem', boxSizing: 'border-box' }}>
                     {uploading ? 'Uploading...' : 'Upload Document'}
                     <input type="file" onChange={handleUpload} style={{ display: 'none' }} disabled={uploading} accept=".pdf,.txt,.md" />
                 </label>
@@ -68,7 +68,10 @@ const DocumentList = () => {
                         background: 'rgba(255,255,255,0.05)',
                         padding: '0.75rem',
                         borderRadius: '8px',
-                        border: '1px solid var(--border)'
+                        border: '1px solid var(--border)',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        overflow: 'hidden'
                     }}>
                         <div style={{ fontWeight: 600, marginBottom: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {doc.originalName}

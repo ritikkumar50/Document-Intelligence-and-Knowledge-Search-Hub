@@ -18,13 +18,16 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB first
+console.log('Attempting to connect to MongoDB...');
+console.log('URI:', process.env.MONGO_URI ? process.env.MONGO_URI.replace(/:([^:@]+)@/, ':****@') : 'undefined');
+
 const mongo = mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 30000, // Increased timeout
   socketTimeoutMS: 45000
 })
   .then(() => {
-    console.log('MongoDB Connected');
-    
+    console.log('MongoDB Connected Successfully');
+
     // Only register routes after DB is connected
     const authRoutes = require('./routes/authRoutes');
     const documentRoutes = require('./routes/documentRoutes');
@@ -33,7 +36,7 @@ const mongo = mongoose.connect(process.env.MONGO_URI, {
     app.use('/api/auth', authRoutes);
     app.use('/api/documents', documentRoutes);
     app.use('/api/chat', chatRoutes);
-    
+
     // Start server only if not running in a serverless environment
     if (process.env.NODE_ENV !== 'production') {
       const PORT = process.env.PORT || 5000;
@@ -41,8 +44,8 @@ const mongo = mongoose.connect(process.env.MONGO_URI, {
     }
   })
   .catch(err => {
-    console.error('MongoDB connection error:', err);
-    console.log('Check your internet connection and MongoDB credentials');
+    console.error('MongoDB connection error details:', err);
+    console.log('Check your internet connection, MongoDB credentials, or whitelist settings.');
   });
 
 // Handle connection events
