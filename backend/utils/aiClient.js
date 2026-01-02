@@ -1,19 +1,18 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const puter = require('@heyputer/puter.js').default;
 const dotenv = require('dotenv');
 dotenv.config();
 
-// User might have put the Gemini key in OPENAI_API_KEY or a new variable.
-const apiKey = process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY;
-
-const genAI = new GoogleGenerativeAI(apiKey);
+const puterKey = process.env.PUTER_API_KEY;
 
 const generateAnswer = async (question, context) => {
-    const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro", "gemini-1.0-pro"];
+    // If no key is configured, return a specific message so frontend knows to try client-side
+    if (!puterKey || puterKey === 'your_puter_token_here') {
+        return "BACKEND_NO_KEY";
+    }
 
-    for (const modelName of modelsToTry) {
-        try {
-            const model = genAI.getGenerativeModel({ model: modelName });
-            const prompt = `
+    try {
+        puter.authToken = puterKey;
+        const prompt = `
       Role: You are a helpful AI assistant.
       Constraint: Answer the question strictly using ONLY the provided Context below. If the answer is not in the context, state "I cannot find this information in the uploaded documents." Do not use outside knowledge.
       
@@ -23,16 +22,19 @@ const generateAnswer = async (question, context) => {
       Question: ${question}
       `;
 
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            return response.text();
-        } catch (error) {
-            console.log(`Model ${modelName} failed: ${error.message}`);
-            // Continue to next model
-        }
-    }
+        const response = await puter.ai.chat(prompt);
 
-    return "Error: No available Gemini models found active on this API key. Please enable 'Generative Language API' in Google Cloud Console.";
+        if (typeof response === 'object' && response.message?.content) {
+            return response.message.content;
+        } else if (typeof response === 'string') {
+            return response;
+        } else {
+            return JSON.stringify(response);
+        }
+    } catch (error) {
+        console.error("Puter AI Error:", error);
+        return `Puter AI Error: ${error.message || 'Unknown error'}`;
+    }
 };
 
 module.exports = { generateAnswer };

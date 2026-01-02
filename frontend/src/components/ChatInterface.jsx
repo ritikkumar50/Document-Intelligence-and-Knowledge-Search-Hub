@@ -38,9 +38,39 @@ const ChatInterface = () => {
         setHistory(prev => [...prev, { role: 'user', content: question, timestamp: new Date() }]);
 
         try {
-            const { data } = await api.post('/chat', { question });
-            setHistory(prev => [...prev, { role: 'assistant', content: data.answer, references: data.references, timestamp: new Date() }]);
+            // 1. Get Context from Backend
+            const { data } = await api.post('/chat', {
+                question,
+                mode: 'context_only' // Tell backend to return context, not answer
+            });
+
+            let answer = '';
+
+            // 2. Generate Answer (Frontend Puter or Backend Fallback)
+            if (window.puter) {
+                try {
+                    // Use Frontend Puter (Free, no API key needed if logged in)
+                    const puterResp = await window.puter.ai.chat(data.systemPrompt);
+                    answer = typeof puterResp === 'object' ? puterResp.message.content : puterResp;
+                } catch (puterErr) {
+                    console.error("Frontend Puter Error:", puterErr);
+                    answer = "Error using Puter.js in browser. Falling back to backend...";
+                    // Fallback to backend generation if frontend fails
+                    const fallback = await api.post('/chat', { question });
+                    answer = fallback.data.answer;
+                }
+            } else {
+                // Fallback if script not loaded
+                const fallback = await api.post('/chat', { question });
+                answer = fallback.data.answer;
+            }
+
+            setHistory(prev => [...prev, { role: 'assistant', content: answer, references: data.references, timestamp: new Date() }]);
+
+            // Optional: Save history to backend (not implemented in this step to keep it simple, but recommended)
+
         } catch (err) {
+            console.error(err);
             setHistory(prev => [...prev, { role: 'assistant', content: "Error: Could not retrieve answer.", timestamp: new Date() }]);
         } finally {
             setLoading(false);

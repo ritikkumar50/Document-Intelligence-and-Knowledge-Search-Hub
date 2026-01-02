@@ -26,10 +26,37 @@ const chatWithDocs = async (req, res) => {
 
         const context = results.map(r => r.text).join('\n\n');
 
+        // Support for Frontend AI (Puter.js)
+        if (req.body.mode === 'context_only') {
+            const references = results.map(r => ({
+                docName: r.documentId.originalName,
+                excerpt: r.text.substring(0, 100) + '...',
+                score: r.score
+            }));
+
+            // Return context so frontend can call AI
+            return res.json({
+                context,
+                references,
+                systemPrompt: `Role: You are a helpful AI assistant.
+Constraint: Answer the question strictly using ONLY the provided Context below. If the answer is not in the context, state "I cannot find this information in the uploaded documents." Do not use outside knowledge.
+
+Context:
+${context}
+
+Question: ${question}`
+            });
+        }
+
         // If no context found found via keywords, we might get empty context. 
         // AI will handle it via prompt instructions ("answer not in context").
 
         const answer = await generateAnswer(question, context);
+
+        let finalAnswer = answer;
+        if (finalAnswer === 'BACKEND_NO_KEY') {
+            finalAnswer = "Backend AI key missing. Please use the frontend flow (Puter.js) or set PUTER_API_KEY in backend.";
+        }
 
         const references = results.map(r => ({
             docName: r.documentId.originalName,
@@ -46,11 +73,11 @@ const chatWithDocs = async (req, res) => {
         await ChatHistory.create({
             userId: req.user._id,
             role: 'assistant',
-            content: answer,
+            content: finalAnswer,
             references: references
         });
 
-        res.json({ answer, references });
+        res.json({ answer: finalAnswer, references });
 
     } catch (error) {
         console.error(error);
