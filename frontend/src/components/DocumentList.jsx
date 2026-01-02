@@ -48,6 +48,10 @@ const DocumentList = () => {
         }
     };
 
+    const [showAll, setShowAll] = useState(false);
+
+    const displayedDocs = showAll ? docs : docs.slice(0, 3);
+
     return (
         <div className="card" style={{ marginBottom: '2rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -58,11 +62,11 @@ const DocumentList = () => {
                 </label>
             </div>
 
-            <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-                {docs.map(doc => (
+            <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: '1fr' }}>
+                {displayedDocs.map(doc => (
                     <div key={doc._id} style={{
                         background: 'rgba(255,255,255,0.05)',
-                        padding: '1rem',
+                        padding: '0.75rem',
                         borderRadius: '8px',
                         border: '1px solid var(--border)'
                     }}>
@@ -86,6 +90,23 @@ const DocumentList = () => {
                 ))}
                 {docs.length === 0 && <div style={{ gridColumn: '1/-1', textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>No documents uploaded yet.</div>}
             </div>
+
+            {docs.length > 3 && (
+                <button
+                    onClick={() => setShowAll(!showAll)}
+                    className="btn"
+                    style={{
+                        marginTop: '1rem',
+                        width: '100%',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px dashed var(--border)',
+                        color: 'var(--text-muted)',
+                        fontSize: '0.9rem'
+                    }}
+                >
+                    {showAll ? 'Show Less' : `Show All (${docs.length})`}
+                </button>
+            )}
         </div>
     );
 };

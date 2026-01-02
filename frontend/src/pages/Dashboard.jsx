@@ -12,7 +12,7 @@ const Dashboard = () => {
                     <p style={{ color: 'var(--text-muted)' }}>Upload documents and ask questions grounded in your data.</p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) 2fr', gap: '2rem', alignItems: 'start' }}>
+                <div className="dashboard-grid">
                     <DocumentList />
                     <ChatInterface />
                 </div>
